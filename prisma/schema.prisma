@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ScanStatus {
+  UPLOADED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  password          String
+  role              Role      @default(USER)
+  resetToken        String?
+  resetExpires      DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  scans             Scan[]
+  
+  @@map("users")
+}
+
+model Model {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  version     String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  scans       Scan[]
+  
+  @@map("models")
+}
+
+model Scan {
+  id           String     @id @default(cuid())
+  filename     String
+  originalUrl  String
+  resultUrl    String?
+  status       ScanStatus @default(UPLOADED)
+  size         Int
+  processingTime Int?
+  accuracy     Float?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  modelId      String?
+  model        Model?     @relation(fields: [modelId], references: [id])
+  
+  @@map("scans")
+}
