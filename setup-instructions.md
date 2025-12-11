@@ -22,7 +22,7 @@
 
 ## Test Database Connection
 
-Visit `/api/test-db` to verify database connection is working.
+Visit `/api/test-db` to verify database connection is working
 
 ## Common Issues
 
